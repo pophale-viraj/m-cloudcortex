@@ -11,7 +11,7 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-    - host: dev.m-cloudcortex.ins
+    - host: dev.m-cloudcortex.in
       http:
         paths:
           - pathType: Prefix
