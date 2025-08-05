@@ -4,14 +4,14 @@ pipeline {
         githubPush()
     }
     environment {
-        AWS_ACCOUNT_ID = "533267238276"
+        AWS_ACCOUNT_ID = "861276077332"
         REGION = "ap-south-1"
         ECR_URL = "${AWS_ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com"
         BRANCH_NAME = "${env.BRANCH_NAME}"
         BUILD_NUMBER = "${env.BUILD_NUMBER}"
-        IMAGE_TAG = "${BRANCH_NAME}-cloudcortex-v.1.${BUILD_NUMBER}"
-        DEV_IMAGE_TAG = "dev-cloudcortex-v.1.${BUILD_NUMBER}"
-        PREPROD_IMAGE_TAG = "preprod-cloudcortex-v.1.${BUILD_NUMBER}"
+        IMAGE_TAG = "${BRANCH_NAME}-m-cloudcortex-v.1.${BUILD_NUMBER}"
+        DEV_IMAGE_TAG = "dev-m-cloudcortex-v.1.${BUILD_NUMBER}"
+        PREPROD_IMAGE_TAG = "preprod-m-cloudcortex-v.1.${BUILD_NUMBER}"
     }
 
     options {
@@ -54,8 +54,8 @@ pipeline {
 
                 stage('Build & Tag Docker Image') {
                     steps {
-                        echo "Building Docker Image: ${ECR_URL}/cloudcortex:${DEV_IMAGE_TAG}"
-                        sh "docker build -t ${ECR_URL}/cloudcortex:${DEV_IMAGE_TAG} ."
+                        echo "Building Docker Image: ${ECR_URL}/m-cloudcortex:${DEV_IMAGE_TAG}"
+                        sh "docker build -t ${ECR_URL}/m-cloudcortex:${DEV_IMAGE_TAG} ."
                         echo 'Docker Image Built Successfully!'
                     }
                 }
@@ -73,7 +73,7 @@ pipeline {
                             withCredentials([string(credentialsId: 'dockerhubCred', variable: 'dockerhubCred')]) {
                                 sh 'docker login docker.io -u pophaleviraj -p ${dockerhubCred}'
                                 echo 'Pushing Docker Image to Docker Hub...'
-                                sh 'docker push pophaleviraj/makemytrip:latest'
+                                sh 'docker push pophaleviraj/m-cloudcortex:latest'
                                 echo 'Docker Image Pushed to Docker Hub Successfully!'
                             }
                         }
@@ -82,15 +82,15 @@ pipeline {
 
                 stage('Push Docker Image to Amazon ECR') {
                     steps {
-                        echo "Pushing Docker Image to ECR: ${ECR_URL}/cloudcortex:${DEV_IMAGE_TAG}"
+                        echo "Pushing Docker Image to ECR: ${ECR_URL}/m-cloudcortex:${DEV_IMAGE_TAG}"
                         withDockerRegistry([credentialsId: 'ecr:ap-south-1:ecr-credentials', url: "https://${ECR_URL}"]) {
-                            sh "docker push ${ECR_URL}/cloudcortex:${DEV_IMAGE_TAG}"
+                            sh "docker push ${ECR_URL}/m-cloudcortex:${DEV_IMAGE_TAG}"
                         }
                         echo 'Docker Image Pushed to ECR Successfully!'
                     }
                 }
 
-                stage('Upload Docker Image to Nexus') {
+                /* stage('Upload Docker Image to Nexus') {
                     steps {
                         script {
                             withCredentials([usernamePassword(credentialsId: 'nexuscred', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
@@ -102,9 +102,9 @@ pipeline {
                             }
                         }
                     }
-                }
+                } */
 
-                stage('Sonarqube') {
+/*                 stage('Sonarqube') {
                     environment {
                         scannerHome = tool 'qube'
                     }
@@ -117,7 +117,7 @@ pipeline {
                             waitForQualityGate abortPipeline: true
                         }
                     }
-                }
+                } */
 
                 /* stage('Cleanup Docker Images') {
                     steps {
