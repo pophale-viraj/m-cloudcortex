@@ -74,7 +74,7 @@ pipeline {
                             withCredentials([string(credentialsId: 'dockerhubCred', variable: 'dockerhubCred')]) {
                                 sh 'docker login docker.io -u pophaleviraj -p ${dockerhubCred}'
                                 echo 'Pushing Docker Image to Docker Hub...'
-                                sh 'docker push pophaleviraj/m-cloudcortex:latest'
+                                sh 'docker push pophaleviraj/m-cloudcortex:${DEV_IMAGE_TAG}'
                                 echo 'Docker Image Pushed to Docker Hub Successfully!'
                             }
                         }
