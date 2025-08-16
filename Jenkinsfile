@@ -54,8 +54,9 @@ pipeline {
 
                 stage('Build & Tag Docker Image') {
                     steps {
-                        echo "Building Docker Image: ${ECR_URL}/m-cloudcortex:${DEV_IMAGE_TAG}"
+                        echo "Building Docker Image: ${ECR_URL}/m-cloudcortex:${DEV_IMAGE_TAG} & pophaleviraj/m-cloudcortex:${DEV_IMAGE_TAG}"
                         sh "docker build -t ${ECR_URL}/m-cloudcortex:${DEV_IMAGE_TAG} ."
+                        sh "docker build -t pophaleviraj/m-cloudcortex:${DEV_IMAGE_TAG} -t m-cloudcortex:${DEV_IMAGE_TAG} ."
                         echo 'Docker Image Built Successfully!'
                     }
                 }
