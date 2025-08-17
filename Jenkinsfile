@@ -63,7 +63,7 @@ pipeline {
 
                 stage('Docker Image Scanning') {
                     steps {
-                        echo 'Scanning Docker Image with Trivyyy...'
+                        echo 'Scanning Docker Image with Trivy...'
                         echo 'Docker Image Scanning Completed!'
                     }
                 }
