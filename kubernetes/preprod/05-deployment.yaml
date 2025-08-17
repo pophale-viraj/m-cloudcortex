@@ -39,7 +39,7 @@ spec:
           volumeMounts:
             - mountPath: /app/config
               name: application-config
-    volumes:
-      - name: application-config
-        configMap:
-          name: preprod-m-cloudcortex-application-config
+      volumes:
+        - name: application-config
+          configMap:
+            name: preprod-m-cloudcortex-application-config
