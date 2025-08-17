@@ -20,7 +20,7 @@ pipeline {
 
     tools {
         maven 'mvn_3.9.10'
-        git 'Default'
+//         git 'Default'
     }
 
     stages {
