@@ -15,11 +15,12 @@ pipeline {
     }
 
     options {
-        buildDiscarder(logRotator(numToKeepStr: '5', artifactNumToKeepStr: '5'))
+        buildDiscarder(logRotator(numToKeepStr: '3', artifactNumToKeepStr: '3'))
     }
 
     tools {
         maven 'mvn_3.9.10'
+//         git 'Default'
     }
 
     stages {
