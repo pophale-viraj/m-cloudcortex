@@ -25,7 +25,7 @@ spec:
     spec:
       containers:
         - name: m-cloudcortex
-          image: 861276077332.dkr.ecr.ap-south-1.amazonaws.com/m-cloudcortex:latest
+          image: 861276077332.dkr.ecr.ap-south-1.amazonaws.com/m-cloudcortex:<latest>
           resources:
             requests:
               memory: 50Mi
@@ -39,7 +39,7 @@ spec:
           volumeMounts:
             - mountPath: /app/config
               name: application-config
-    volumes:
-      - name: application-config
-        configMap:
-          name: dev-m-cloudcortex-application-config
+      volumes:
+        - name: application-config
+          configMap:
+            name: dev-m-cloudcortex-application-config
