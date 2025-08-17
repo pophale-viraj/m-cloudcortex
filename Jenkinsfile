@@ -141,10 +141,10 @@ pipeline {
             }
             steps {
                 script {
-                    def targetTag = BRANCH_NAME == 'preprod' ? PREPROD_IMAGE_TAG : "prod-cloudcortex-v.1.${BUILD_NUMBER}"
+                    def targetTag = BRANCH_NAME == 'preprod' ? PREPROD_IMAGE_TAG : "prod-m-cloudcortex-v.1.${BUILD_NUMBER}"
                     def sourceTag = BRANCH_NAME == 'preprod' ? DEV_IMAGE_TAG : PREPROD_IMAGE_TAG
-                    def sourceImage = "${ECR_URL}/cloudcortex:${sourceTag}"
-                    def targetImage = "${ECR_URL}/cloudcortex:${targetTag}"
+                    def sourceImage = "${ECR_URL}/m-cloudcortex:${sourceTag}"
+                    def targetImage = "${ECR_URL}/m-cloudcortex:${targetTag}"
 
                     echo "Pulling Source Image: ${sourceImage}"
                     withDockerRegistry([credentialsId: 'ecr:ap-south-1:ecr-credentials', url: "https://${ECR_URL}"]) {
@@ -184,7 +184,7 @@ pipeline {
                     if (configMapChanged == 0) {
                         echo "ConfigMap changed, restarting pods"
                         sh """
-                            kubectl --kubeconfig=/var/lib/jenkins/.kube/config rollout restart deployment dev-cloudcortex-deployment -n dev
+                            kubectl --kubeconfig=/var/lib/jenkins/.kube/config rollout restart deployment dev-m-cloudcortex-deployment -n dev
                         """
                     } else {
                         echo "No ConfigMap Changes, Skipping Pod Restart"
@@ -223,8 +223,8 @@ pipeline {
                     def yamlFile = 'kubernetes/prod/05-deployment.yaml'
 
                     sh """
-                        sed -i 's|<latest>|prod-cloudcortex-v.1.${BUILD_NUMBER}|g' ${yamlFile}
-                        cat ${yamlFile} | grep prod-cloudcortex-v.1.${BUILD_NUMBER} || echo "Replacement failed in ${yamlFile}"
+                        sed -i 's|<latest>|prod-m-cloudcortex-v.1.${BUILD_NUMBER}|g' ${yamlFile}
+                        cat ${yamlFile} | grep prod-m-cloudcortex-v.1.${BUILD_NUMBER} || echo "Replacement failed in ${yamlFile}"
                     """
                     sh """
                         kubectl --kubeconfig=/var/lib/jenkins/.kube/config apply -f kubernetes/prod/
