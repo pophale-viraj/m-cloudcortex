@@ -92,19 +92,19 @@ pipeline {
                     }
                 }
 
-                /* stage('Upload Docker Image to Nexus') {
+                stage('Upload Docker Image to Nexus') {
                     steps {
                         script {
                             withCredentials([usernamePassword(credentialsId: 'nexuscred', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                                sh 'docker login http://65.0.177.242:8085/repository/makemytrip/ -u admin -p ${PASSWORD}'
+                                sh 'docker login http://13.126.88.254:8086/repository/m-cloudcortex/ -u admin -p ${PASSWORD}'
                                 echo "Push Docker Image to Nexus : In Progress"
-                                sh 'docker tag makemytrip 65.0.177.242:8085/makemytrip:latest'
-                                sh 'docker push 65.0.177.242:8085/makemytrip'
+                                sh 'docker tag m-cloudcortex 13.126.88.254:8086/m-cloudcortex:latest'
+                                sh 'docker push 13.126.88.254:8086/m-cloudcortex'
                                 echo "Push Docker Image to Nexus : Completed"
                             }
                         }
                     }
-                } */
+                }
 
 /*                 stage('Sonarqube') {
                     environment {
