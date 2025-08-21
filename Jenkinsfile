@@ -121,7 +121,7 @@ pipeline {
                     }
                 }
 
-                /* stage('Cleanup Docker Imags') {
+                /* stage('Cleanup Docker Images') {
                     steps {
                         echo 'Cleaning up local Docker images...'
                         sh "docker rmi -f ${DOCKER_IMAGE}:latest || true"
