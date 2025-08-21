@@ -96,10 +96,10 @@ pipeline {
                     steps {
                         script {
                             withCredentials([usernamePassword(credentialsId: 'nexuscred', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                                sh 'docker login http://13.126.88.254:8086/repository/m-cloudcortex/ -u admin -p ${PASSWORD}'
+                                sh 'docker login http://13.201.93.45:8085/repository/m-cloudcortex/ -u admin -p ${PASSWORD}'
                                 echo "Push Docker Image to Nexus : In Progress"
-                                sh 'docker tag m-cloudcortex 13.126.88.254:8086/m-cloudcortex:latest'
-                                sh 'docker push 13.126.88.254:8086/m-cloudcortex'
+                                sh 'docker tag m-cloudcortex 13.201.93.45:8085/m-cloudcortex:latest'
+                                sh 'docker push 13.201.93.45:8085/m-cloudcortex'
                                 echo "Push Docker Image to Nexus : Completed"
                             }
                         }
