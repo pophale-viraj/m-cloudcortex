@@ -124,7 +124,7 @@ pipeline {
 
                 /* stage('Cleanup Docker Images') {
                     steps {
-                        echo 'Cleaning up local Docker images...'
+                        echo 'Cleaning up local Docker imags...'
                         sh "docker rmi -f ${DOCKER_IMAGE}:latest || true"
                         sh "docker rmi -f ${ECR_REPO}:latest || true"
                         echo 'Local Docker images deleted successfully!'
