@@ -4,22 +4,23 @@ pipeline {
         githubPush()
     }
     environment {
-        AWS_ACCOUNT_ID = "533267238276"
+        AWS_ACCOUNT_ID = "861276077332"
         REGION = "ap-south-1"
         ECR_URL = "${AWS_ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com"
         BRANCH_NAME = "${env.BRANCH_NAME}"
         BUILD_NUMBER = "${env.BUILD_NUMBER}"
-        IMAGE_TAG = "${BRANCH_NAME}-cloudcortex-v.1.${BUILD_NUMBER}"
-        DEV_IMAGE_TAG = "dev-cloudcortex-v.1.${BUILD_NUMBER}"
-        PREPROD_IMAGE_TAG = "preprod-cloudcortex-v.1.${BUILD_NUMBER}"
+        IMAGE_TAG = "${BRANCH_NAME}-m-cloudcortex-v.1.${BUILD_NUMBER}"
+        DEV_IMAGE_TAG = "dev-m-cloudcortex-v.1.${BUILD_NUMBER}"
+        PREPROD_IMAGE_TAG = "preprod-m-cloudcortex-v.1.${BUILD_NUMBER}"
     }
 
     options {
-        buildDiscarder(logRotator(numToKeepStr: '5', artifactNumToKeepStr: '5'))
+        buildDiscarder(logRotator(numToKeepStr: '3', artifactNumToKeepStr: '3'))
     }
 
     tools {
-        maven 'maven_3.9.4'
+        maven 'mvn_3.9.10'
+//         git 'Default'
     }
 
     stages {
@@ -54,8 +55,9 @@ pipeline {
 
                 stage('Build & Tag Docker Image') {
                     steps {
-                        echo "Building Docker Image: ${ECR_URL}/cloudcortex:${DEV_IMAGE_TAG}"
-                        sh "docker build -t ${ECR_URL}/cloudcortex:${DEV_IMAGE_TAG} ."
+                        echo "Building Docker Image: ${ECR_URL}/m-cloudcortex:${DEV_IMAGE_TAG} & pophaleviraj/m-cloudcortex:${DEV_IMAGE_TAG}"
+                        sh "docker build -t ${ECR_URL}/m-cloudcortex:${DEV_IMAGE_TAG} ."
+                        sh "docker build -t pophaleviraj/m-cloudcortex:${DEV_IMAGE_TAG} -t m-cloudcortex:${DEV_IMAGE_TAG} ."
                         echo 'Docker Image Built Successfully!'
                     }
                 }
@@ -73,7 +75,7 @@ pipeline {
                             withCredentials([string(credentialsId: 'dockerhubCred', variable: 'dockerhubCred')]) {
                                 sh 'docker login docker.io -u pophaleviraj -p ${dockerhubCred}'
                                 echo 'Pushing Docker Image to Docker Hub...'
-                                sh 'docker push pophaleviraj/makemytrip:latest'
+                                sh 'docker push pophaleviraj/m-cloudcortex:${DEV_IMAGE_TAG}'
                                 echo 'Docker Image Pushed to Docker Hub Successfully!'
                             }
                         }
@@ -82,9 +84,9 @@ pipeline {
 
                 stage('Push Docker Image to Amazon ECR') {
                     steps {
-                        echo "Pushing Docker Image to ECR: ${ECR_URL}/cloudcortex:${DEV_IMAGE_TAG}"
+                        echo "Pushing Docker Image to ECR: ${ECR_URL}/m-cloudcortex:${DEV_IMAGE_TAG}"
                         withDockerRegistry([credentialsId: 'ecr:ap-south-1:ecr-credentials', url: "https://${ECR_URL}"]) {
-                            sh "docker push ${ECR_URL}/cloudcortex:${DEV_IMAGE_TAG}"
+                            sh "docker push ${ECR_URL}/m-cloudcortex:${DEV_IMAGE_TAG}"
                         }
                         echo 'Docker Image Pushed to ECR Successfully!'
                     }
@@ -94,10 +96,11 @@ pipeline {
                     steps {
                         script {
                             withCredentials([usernamePassword(credentialsId: 'nexuscred', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                                sh 'docker login http://65.0.177.242:8085/repository/makemytrip/ -u admin -p ${PASSWORD}'
+                                sh 'docker login http://13.127.51.206:8085/repository/m-cloudcortex/ -u admin -p ${PASSWORD}'
                                 echo "Push Docker Image to Nexus : In Progress"
-                                sh 'docker tag makemytrip 65.0.177.242:8085/makemytrip:latest'
-                                sh 'docker push 65.0.177.242:8085/makemytrip'
+                                sh "docker tag m-cloudcortex:dev-m-cloudcortex-v.1.${BUILD_NUMBER} 13.127.51.206:8085/m-cloudcortex:dev-m-cloudcortex-v.1.${BUILD_NUMBER}"
+                                sh 'docker push 13.127.51.206:8085/m-cloudcortex:dev-m-cloudcortex-v.1.${BUILD_NUMBER}'
+                                sh 'docker push 13.127.51.206:8085/m-cloudcortex:dev-m-cloudcortex-v.1.${BUILD_NUMBER}'
                                 echo "Push Docker Image to Nexus : Completed"
                             }
                         }
@@ -139,10 +142,10 @@ pipeline {
             }
             steps {
                 script {
-                    def targetTag = BRANCH_NAME == 'preprod' ? PREPROD_IMAGE_TAG : "prod-cloudcortex-v.1.${BUILD_NUMBER}"
+                    def targetTag = BRANCH_NAME == 'preprod' ? PREPROD_IMAGE_TAG : "prod-m-cloudcortex-v.1.${BUILD_NUMBER}"
                     def sourceTag = BRANCH_NAME == 'preprod' ? DEV_IMAGE_TAG : PREPROD_IMAGE_TAG
-                    def sourceImage = "${ECR_URL}/cloudcortex:${sourceTag}"
-                    def targetImage = "${ECR_URL}/cloudcortex:${targetTag}"
+                    def sourceImage = "${ECR_URL}/m-cloudcortex:${sourceTag}"
+                    def targetImage = "${ECR_URL}/m-cloudcortex:${targetTag}"
 
                     echo "Pulling Source Image: ${sourceImage}"
                     withDockerRegistry([credentialsId: 'ecr:ap-south-1:ecr-credentials', url: "https://${ECR_URL}"]) {
@@ -182,7 +185,7 @@ pipeline {
                     if (configMapChanged == 0) {
                         echo "ConfigMap changed, restarting pods"
                         sh """
-                            kubectl --kubeconfig=/var/lib/jenkins/.kube/config rollout restart deployment dev-cloudcortex-deployment -n dev
+                            kubectl --kubeconfig=/var/lib/jenkins/.kube/config rollout restart deployment dev-m-cloudcortex-deployment -n dev
                         """
                     } else {
                         echo "No ConfigMap Changes, Skipping Pod Restart"
@@ -221,8 +224,8 @@ pipeline {
                     def yamlFile = 'kubernetes/prod/05-deployment.yaml'
 
                     sh """
-                        sed -i 's|<latest>|prod-cloudcortex-v.1.${BUILD_NUMBER}|g' ${yamlFile}
-                        cat ${yamlFile} | grep prod-cloudcortex-v.1.${BUILD_NUMBER} || echo "Replacement failed in ${yamlFile}"
+                        sed -i 's|<latest>|prod-m-cloudcortex-v.1.${BUILD_NUMBER}|g' ${yamlFile}
+                        cat ${yamlFile} | grep prod-m-cloudcortex-v.1.${BUILD_NUMBER} || echo "Replacement failed in ${yamlFile}"
                     """
                     sh """
                         kubectl --kubeconfig=/var/lib/jenkins/.kube/config apply -f kubernetes/prod/
